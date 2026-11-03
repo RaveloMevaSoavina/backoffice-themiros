@@ -53,3 +53,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storageKey: "themiros-backoffice-auth",
   },
 })
+
+/** Jeton de la session, pour les appels a l'API Themiros. */
+export async function accessToken() {
+  const { data, error } = await supabase.auth.getSession()
+  if (error) throw error
+  if (!data.session) throw new Error("Session expirée : reconnectez-vous.")
+  return data.session.access_token
+}

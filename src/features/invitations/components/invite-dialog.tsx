@@ -1,20 +1,14 @@
-import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 
 import type { InvitationInput } from "@/features/invitations/model/types"
 import { createInvitation } from "@/features/invitations/services/invitation-service"
 import { OrganizationSelect } from "@/features/organizations/components/organization-select"
-import { listWorkspaces } from "@/features/projects/services/project-service"
+import { WorkspaceAccessFields } from "@/features/projects/components/workspace-access-fields"
 import { useAdminMutation } from "@/shared/hooks/use-admin-mutation"
 import {
-  labelOf,
   type ProfileRole,
   profileRoleLabels,
   profileRoles,
-  type WorkspaceRole,
-  workspaceKindLabels,
-  workspaceRoleLabels,
-  workspaceRoles,
 } from "@/shared/lib/labels"
 import { Button } from "@/shared/ui/base/button"
 import {
@@ -73,11 +67,6 @@ function InviteForm({
     workspaceIds: [],
     workspaceRole: "member",
   })
-  const workspaces = useQuery({
-    queryKey: ["workspaces", input.organizationId],
-    queryFn: () => listWorkspaces(input.organizationId),
-    enabled: Boolean(input.organizationId),
-  })
   const mutation = useAdminMutation({
     mutationFn: createInvitation,
     success: (result) =>
@@ -86,15 +75,6 @@ function InviteForm({
         : `${input.email.trim()} avait déjà un compte : il est rattaché à l'organisation`,
     onSuccess: onDone,
   })
-
-  const toggleWorkspace = (id: string, checked: boolean) => {
-    setInput((current) => ({
-      ...current,
-      workspaceIds: checked
-        ? [...current.workspaceIds, id]
-        : current.workspaceIds.filter((workspaceId) => workspaceId !== id),
-    }))
-  }
 
   return (
     <form
@@ -168,69 +148,15 @@ function InviteForm({
           </NativeSelect>
         </Field>
 
-        <fieldset className="space-y-2 sm:col-span-2">
-          <legend className="mb-1.5 text-xs text-muted-foreground">
-            Espaces à ouvrir (facultatif)
-          </legend>
-          {!input.organizationId ? (
-            <p className="text-xs text-muted-foreground">
-              Choisissez d'abord l'organisation.
-            </p>
-          ) : (workspaces.data ?? []).length === 0 ? (
-            <p className="text-xs text-muted-foreground">
-              {workspaces.isLoading
-                ? "Chargement des espaces..."
-                : "Cette organisation n'a encore aucun espace."}
-            </p>
-          ) : (
-            <div className="max-h-40 space-y-1 overflow-y-auto rounded-lg p-2 ring-1 ring-border">
-              {(workspaces.data ?? []).map((workspace) => (
-                <label
-                  className="flex items-center gap-2 rounded-md px-1 py-0.5 text-sm"
-                  key={workspace.id}
-                >
-                  <input
-                    checked={input.workspaceIds.includes(workspace.id)}
-                    className="size-4 accent-foreground"
-                    onChange={(event) => {
-                      toggleWorkspace(workspace.id, event.target.checked)
-                    }}
-                    type="checkbox"
-                  />
-                  <span className="truncate">{workspace.name}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {labelOf(workspaceKindLabels, workspace.kind)}
-                  </span>
-                </label>
-              ))}
-            </div>
-          )}
-        </fieldset>
-
-        {input.workspaceIds.length > 0 ? (
-          <Field
-            className="sm:col-span-2"
-            htmlFor="invite-workspace-role"
-            label="Rôle dans ces espaces"
-          >
-            <NativeSelect
-              id="invite-workspace-role"
-              onChange={(event) => {
-                setInput({
-                  ...input,
-                  workspaceRole: event.target.value as WorkspaceRole,
-                })
-              }}
-              value={input.workspaceRole}
-            >
-              {workspaceRoles.map((role) => (
-                <option key={role} value={role}>
-                  {workspaceRoleLabels[role]}
-                </option>
-              ))}
-            </NativeSelect>
-          </Field>
-        ) : null}
+        <WorkspaceAccessFields
+          idPrefix="invite"
+          onChange={(patch) => {
+            setInput({ ...input, ...patch })
+          }}
+          organizationId={input.organizationId}
+          workspaceIds={input.workspaceIds}
+          workspaceRole={input.workspaceRole}
+        />
       </DialogBody>
       <DialogFooter>
         <Button disabled={mutation.isPending} type="submit">

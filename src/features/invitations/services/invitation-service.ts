@@ -4,7 +4,7 @@ import type {
   InvitationInput,
 } from "@/features/invitations/model/types"
 import { apiRequest } from "@/shared/lib/api"
-import { supabase } from "@/shared/lib/supabase"
+import { accessToken, supabase } from "@/shared/lib/supabase"
 
 type InvitationRow = {
   id: string
@@ -24,13 +24,6 @@ type InvitationRow = {
 }
 
 type InvitationResult = { id: string; delivery: InvitationDelivery }
-
-async function accessToken() {
-  const { data, error } = await supabase.auth.getSession()
-  if (error) throw error
-  if (!data.session) throw new Error("Session expirée : reconnectez-vous.")
-  return data.session.access_token
-}
 
 export async function listInvitations(
   organizationId?: string

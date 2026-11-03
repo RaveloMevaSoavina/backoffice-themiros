@@ -49,20 +49,21 @@ Avant la première ouverture :
 - Les nouvelles tables (`platform_admins`, `organization_invitations`,
   `billing_plans`, `subscriptions`, `invoices`) n'ont aucune policy :
   inaccessibles en direct à `anon` et `authenticated`.
-- L'envoi d'une invitation demande la clé serveur (GoTrue `/invite`) : il
-  passe par l'API (`POST /api/v1/admin/invitations`), qui vérifie
-  `is_platform_admin()` avec le jeton de l'appelant.
+- L'envoi d'une invitation et la création d'un compte demandent la clé
+  serveur (GoTrue `/invite`, `/admin/users`) : ils passent par l'API
+  (`POST /api/v1/admin/invitations`, `POST /api/v1/admin/profiles`), qui
+  vérifie `is_platform_admin()` avec le jeton de l'appelant.
 
 ## Écrans
 
-| Route | Contenu |
-| --- | --- |
-| `/organizations` | Liste, création. Comptes, espaces, invitations en attente, offre. |
-| `/organizations/:id` | Fiche : comptes, invitations, espaces, abonnement, factures, coordonnées de facturation. Suppression refusée dès qu'une facture existe. |
-| `/profiles` | Tous les comptes : rôle, organisation (en changer retire le compte des espaces de l'ancienne), accès au backoffice. |
-| `/invitations` | Invitations par e-mail, avec rôle et espaces à ouvrir ; renvoi, révocation. |
-| `/projects`, `/projects/:id` | Espaces (projets, programmes, politiques) : création, phase, années, membres et rôles, suppression. |
-| `/billing` | Revenu annuel récurrent, encours, abonnements (consommation d'évaluations, coût IA), factures. |
+| Route                        | Contenu                                                                                                                                 |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `/organizations`             | Liste, création. Comptes, espaces, invitations en attente, offre.                                                                       |
+| `/organizations/:id`         | Fiche : comptes, invitations, espaces, abonnement, factures, coordonnées de facturation. Suppression refusée dès qu'une facture existe. |
+| `/profiles`                  | Tous les comptes : création manuelle, rôle, organisation (en changer retire le compte des espaces de l'ancienne), accès au backoffice.  |
+| `/invitations`               | Invitations par e-mail, avec rôle et espaces à ouvrir ; renvoi, révocation.                                                             |
+| `/projects`, `/projects/:id` | Espaces (projets, programmes, politiques) : création, phase, années, membres et rôles, suppression.                                     |
+| `/billing`                   | Revenu annuel récurrent, encours, abonnements (consommation d'évaluations, coût IA), factures.                                          |
 
 ## Invitations
 
@@ -79,6 +80,16 @@ l'envoi échoue, l'invitation enregistrée est retirée. Statut : « acceptée �
 dès la première connexion. Révoquer une invitation en attente retire le
 compte de l'organisation et, s'il n'existait que par l'invitation, le
 supprime.
+
+## Création manuelle d'un profil
+
+Depuis Profils ou la fiche d'une organisation : adresse, nom, mot de passe
+(généré, modifiable), rôle et espaces. Aucun e-mail ne part : GoTrue crée le
+compte avec l'adresse déjà confirmée, puis l'API le rattache par
+`backoffice_update_profile` et `backoffice_set_workspace_member`. Si le
+rattachement échoue, le compte est supprimé. L'administrateur transmet
+lui-même l'adresse et le mot de passe ; la personne se connecte au dashboard
+avec.
 
 ## Facturation
 

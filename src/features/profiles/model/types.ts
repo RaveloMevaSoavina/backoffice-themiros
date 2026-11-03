@@ -1,4 +1,4 @@
-import type { ProfileRole } from "@/shared/lib/labels"
+import type { ProfileRole, WorkspaceRole } from "@/shared/lib/labels"
 
 export type Profile = {
   id: string
@@ -20,6 +20,17 @@ export type ProfileInput = {
   fullName: string
   role: ProfileRole | ""
   organizationId: string | null
+}
+
+/** Compte cree a la main : mot de passe choisi ici, aucun e-mail envoye. */
+export type ProfileCreateInput = {
+  organizationId: string
+  email: string
+  fullName: string
+  password: string
+  role: ProfileRole
+  workspaceIds: string[]
+  workspaceRole: WorkspaceRole
 }
 
 export function profileDisplayName(profile: {

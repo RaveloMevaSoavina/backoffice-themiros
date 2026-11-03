@@ -1,5 +1,12 @@
 import { useQuery } from "@tanstack/react-query"
-import { FilePlus, FolderPlus, MailPlus, Pencil, Trash2 } from "lucide-react"
+import {
+  FilePlus,
+  FolderPlus,
+  MailPlus,
+  Pencil,
+  Trash2,
+  UserPlus,
+} from "lucide-react"
 import { type ReactNode, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 
@@ -18,6 +25,7 @@ import {
   deleteOrganization,
   getOrganization,
 } from "@/features/organizations/services/organization-service"
+import { ProfileCreateDialog } from "@/features/profiles/components/profile-create-dialog"
 import { ProfilesTable } from "@/features/profiles/components/profiles-table"
 import { ProjectFormDialog } from "@/features/projects/components/project-form-dialog"
 import { ProjectsTable } from "@/features/projects/components/projects-table"
@@ -43,6 +51,7 @@ type Dialog =
   | "edit"
   | "delete"
   | "invite"
+  | "profile"
   | "project"
   | "subscription"
   | "invoice"
@@ -84,6 +93,15 @@ export function OrganizationDetailScreen() {
                 >
                   <MailPlus />
                   Inviter
+                </Button>
+                <Button
+                  onClick={() => {
+                    setDialog("profile")
+                  }}
+                  variant="outline"
+                >
+                  <UserPlus />
+                  Créer un profil
                 </Button>
                 <Button
                   onClick={() => {
@@ -266,6 +284,11 @@ export function OrganizationDetailScreen() {
           <InviteDialog
             onOpenChange={closeDialog}
             open={dialog === "invite"}
+            organizationId={data.id}
+          />
+          <ProfileCreateDialog
+            onOpenChange={closeDialog}
+            open={dialog === "profile"}
             organizationId={data.id}
           />
           <ProjectFormDialog

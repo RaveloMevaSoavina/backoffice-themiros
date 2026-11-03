@@ -1,5 +1,10 @@
-import type { Profile, ProfileInput } from "@/features/profiles/model/types"
-import { supabase } from "@/shared/lib/supabase"
+import type {
+  Profile,
+  ProfileCreateInput,
+  ProfileInput,
+} from "@/features/profiles/model/types"
+import { apiRequest } from "@/shared/lib/api"
+import { accessToken, supabase } from "@/shared/lib/supabase"
 
 type ProfileRow = {
   id: string
@@ -37,6 +42,23 @@ export async function listProfiles(
     lastSignInAt: row.last_sign_in_at,
     createdAt: row.created_at,
   }))
+}
+
+/* Creer un compte demande la cle serveur : il passe par l'API. */
+export async function createProfile(input: ProfileCreateInput) {
+  return apiRequest<{ id: string }>("/api/v1/admin/profiles", {
+    method: "POST",
+    accessToken: await accessToken(),
+    body: JSON.stringify({
+      organization_id: input.organizationId,
+      email: input.email.trim(),
+      full_name: input.fullName.trim() || null,
+      password: input.password,
+      role: input.role,
+      workspace_ids: input.workspaceIds,
+      workspace_role: input.workspaceRole,
+    }),
+  })
 }
 
 export async function updateProfile(input: ProfileInput) {
