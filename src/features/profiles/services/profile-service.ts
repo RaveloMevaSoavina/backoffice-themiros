@@ -80,6 +80,15 @@ export async function setProfileArchived(input: {
   )
 }
 
+/* Suppression definitive (GoTrue, cle serveur) : par l'API. Refusee si le
+   compte est l'auteur de donnees : il s'archive alors. */
+export async function deleteProfile(profileId: string) {
+  await apiRequest<void>(`/api/v1/admin/profiles/${profileId}/delete`, {
+    method: "POST",
+    accessToken: await accessToken(),
+  })
+}
+
 export async function updateProfile(input: ProfileInput) {
   const { error } = await supabase.rpc("backoffice_update_profile", {
     p_profile_id: input.id,

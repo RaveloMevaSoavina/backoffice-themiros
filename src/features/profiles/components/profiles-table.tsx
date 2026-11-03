@@ -10,6 +10,7 @@ import {
   profileDisplayName,
 } from "@/features/profiles/model/types"
 import {
+  deleteProfile,
   listProfiles,
   setPlatformAdmin,
   setProfileArchived,
@@ -53,6 +54,7 @@ export function ProfilesTable({ organizationId }: ProfilesTableProps) {
   const [editing, setEditing] = useState<Profile | null>(null)
   const [adminChange, setAdminChange] = useState<Profile | null>(null)
   const [archiveChange, setArchiveChange] = useState<Profile | null>(null)
+  const [deleting, setDeleting] = useState<Profile | null>(null)
   const [showArchived, setShowArchived] = useState(false)
   const adminMutation = useAdminMutation({
     mutationFn: setPlatformAdmin,
@@ -68,6 +70,14 @@ export function ProfilesTable({ organizationId }: ProfilesTableProps) {
       variables.archived ? "Profil archivé" : "Profil restauré",
     onSuccess: () => {
       setArchiveChange(null)
+    },
+  })
+
+  const deleteMutation = useAdminMutation({
+    mutationFn: deleteProfile,
+    success: "Compte supprimé définitivement",
+    onSuccess: () => {
+      setDeleting(null)
     },
   })
 
@@ -233,6 +243,15 @@ export function ProfilesTable({ organizationId }: ProfilesTableProps) {
                             ? "Restaurer le profil"
                             : "Archiver le profil"}
                         </DropdownMenuItem>
+                        <DropdownMenuItem
+                          disabled={profile.id === session?.user.id}
+                          onSelect={() => {
+                            setDeleting(profile)
+                          }}
+                          variant="destructive"
+                        >
+                          Supprimer définitivement
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -302,6 +321,23 @@ export function ProfilesTable({ organizationId }: ProfilesTableProps) {
             ? "Restaurer le profil"
             : "Archiver le profil"
         }
+      />
+
+      <ConfirmDialog
+        confirmLabel="Supprimer définitivement"
+        description={`Le compte ${deleting?.email} est effacé, avec ses accès aux espaces et ses invitations. C'est irréversible. Un compte auteur de données (approches, cadres, documents…) ne se supprime pas : archivez-le.`}
+        destructive
+        isPending={deleteMutation.isPending}
+        onConfirm={() => {
+          if (deleting) {
+            deleteMutation.mutate(deleting.id)
+          }
+        }}
+        onOpenChange={(open) => {
+          if (!open) setDeleting(null)
+        }}
+        open={deleting !== null}
+        title="Supprimer le compte"
       />
     </>
   )

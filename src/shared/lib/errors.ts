@@ -14,6 +14,10 @@ const messages: Record<string, string> = {
     "Cette organisation a été facturée : elle ne peut plus être supprimée.",
   PROFILE_NOT_FOUND: "Profil introuvable.",
   CANNOT_ARCHIVE_SELF: "Vous ne pouvez pas archiver votre propre compte.",
+  CANNOT_DELETE_SELF: "Vous ne pouvez pas supprimer votre propre compte.",
+  PROFILE_HAS_RECORDS:
+    "Ce compte est l'auteur de données dans ses espaces (approches, cadres, documents…) : il ne peut pas être supprimé. Archivez-le plutôt.",
+  USER_DELETE_FAILED: "Supabase n'a pas pu supprimer le compte.",
   USER_BAN_FAILED:
     "Supabase n'a pas pu bloquer ou débloquer le compte : rien n'a changé.",
   EMAIL_ALREADY_REGISTERED: "Un compte existe déjà avec cette adresse.",

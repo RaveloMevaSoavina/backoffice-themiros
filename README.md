@@ -21,7 +21,8 @@ Avant la première ouverture :
 
 1. Appliquer la migration
    `dashboard-themiros/supabase/migrations/20261103000001_backoffice.sql`
-   et `20261103000002_backoffice_archive_profiles.sql` (la chaîne de
+   `20261103000002_backoffice_archive_profiles.sql` et
+   `20261103000003_backoffice_delete_profiles.sql` (la chaîne de
    migrations reste dans le dashboard : c'est la même base).
 2. Nommer le premier administrateur, dans le SQL editor :
 
@@ -57,14 +58,14 @@ Avant la première ouverture :
 
 ## Écrans
 
-| Route                        | Contenu                                                                                                                                           |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/organizations`             | Liste, création. Comptes, espaces, invitations en attente, offre.                                                                                 |
-| `/organizations/:id`         | Fiche : comptes, invitations, espaces, abonnement, factures, coordonnées de facturation. Suppression refusée dès qu'une facture existe.           |
-| `/profiles`                  | Tous les comptes : création manuelle, archivage, rôle, organisation (en changer retire le compte des espaces de l'ancienne), accès au backoffice. |
-| `/invitations`               | Invitations par e-mail, avec rôle et espaces à ouvrir ; renvoi, révocation.                                                                       |
-| `/projects`, `/projects/:id` | Espaces (projets, programmes, politiques) : création, phase, années, membres et rôles, suppression.                                               |
-| `/billing`                   | Revenu annuel récurrent, encours, abonnements (consommation d'évaluations, coût IA), factures.                                                    |
+| Route                        | Contenu                                                                                                                                                        |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/organizations`             | Liste, création. Comptes, espaces, invitations en attente, offre.                                                                                              |
+| `/organizations/:id`         | Fiche : comptes, invitations, espaces, abonnement, factures, coordonnées de facturation. Suppression refusée dès qu'une facture existe.                        |
+| `/profiles`                  | Tous les comptes : création manuelle, archivage, suppression, rôle, organisation (en changer retire le compte des espaces de l'ancienne), accès au backoffice. |
+| `/invitations`               | Invitations par e-mail, avec rôle et espaces à ouvrir ; renvoi, révocation.                                                                                    |
+| `/projects`, `/projects/:id` | Espaces (projets, programmes, politiques) : création, phase, années, membres et rôles, suppression.                                                            |
+| `/billing`                   | Revenu annuel récurrent, encours, abonnements (consommation d'évaluations, coût IA), factures.                                                                 |
 
 ## Invitations
 
@@ -104,6 +105,19 @@ propre compte. Les profils archivés sont masqués de la liste par défaut.
 Le jeton déjà délivré reste valable jusqu'à son expiration (une heure par
 défaut). Côté dashboard, un compte archivé apparaît encore dans les membres
 de ses espaces.
+
+## Suppression définitive d'un compte
+
+Réservée aux comptes qui n'ont rien produit (compte de test, erreur de
+saisie, invitation jamais utilisée). `backoffice_prepare_profile_deletion`
+cherche, dans le catalogue, toute référence au compte qui bloquerait sa
+suppression : approches, cadres, documents intégrés, générations de piliers,
+ou toute table ajoutée plus tard. S'il en trouve, il refuse
+(`PROFILE_HAS_RECORDS`) : le compte s'archive. Sinon il efface les
+invitations de l'adresse, puis l'API supprime le compte dans Supabase Auth ;
+le profil, les appartenances aux espaces et l'accès au backoffice suivent en
+cascade, et les références `on delete set null` (journal d'audit, documents
+déposés, factures) perdent leur auteur. Irréversible.
 
 ## Facturation
 
