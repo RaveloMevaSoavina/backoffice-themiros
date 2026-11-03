@@ -18,6 +18,8 @@ type ProfileRow = {
   workspace_count: number
   email_confirmed_at: string | null
   last_sign_in_at: string | null
+  archived_at: string | null
+  archived_by_name: string | null
   created_at: string
 }
 
@@ -40,6 +42,8 @@ export async function listProfiles(
     workspaceCount: Number(row.workspace_count),
     emailConfirmedAt: row.email_confirmed_at,
     lastSignInAt: row.last_sign_in_at,
+    archivedAt: row.archived_at,
+    archivedByName: row.archived_by_name,
     createdAt: row.created_at,
   }))
 }
@@ -59,6 +63,21 @@ export async function createProfile(input: ProfileCreateInput) {
       workspace_role: input.workspaceRole,
     }),
   })
+}
+
+/* Archiver bloque la connexion cote Supabase Auth (cle serveur) : par l'API. */
+export async function setProfileArchived(input: {
+  profileId: string
+  archived: boolean
+}) {
+  const action = input.archived ? "archive" : "restore"
+  await apiRequest<void>(
+    `/api/v1/admin/profiles/${input.profileId}/${action}`,
+    {
+      method: "POST",
+      accessToken: await accessToken(),
+    }
+  )
 }
 
 export async function updateProfile(input: ProfileInput) {

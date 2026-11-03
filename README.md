@@ -21,7 +21,8 @@ Avant la première ouverture :
 
 1. Appliquer la migration
    `dashboard-themiros/supabase/migrations/20261103000001_backoffice.sql`
-   (la chaîne de migrations reste dans le dashboard : c'est la même base).
+   et `20261103000002_backoffice_archive_profiles.sql` (la chaîne de
+   migrations reste dans le dashboard : c'est la même base).
 2. Nommer le premier administrateur, dans le SQL editor :
 
    ```sql
@@ -56,14 +57,14 @@ Avant la première ouverture :
 
 ## Écrans
 
-| Route                        | Contenu                                                                                                                                 |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `/organizations`             | Liste, création. Comptes, espaces, invitations en attente, offre.                                                                       |
-| `/organizations/:id`         | Fiche : comptes, invitations, espaces, abonnement, factures, coordonnées de facturation. Suppression refusée dès qu'une facture existe. |
-| `/profiles`                  | Tous les comptes : création manuelle, rôle, organisation (en changer retire le compte des espaces de l'ancienne), accès au backoffice.  |
-| `/invitations`               | Invitations par e-mail, avec rôle et espaces à ouvrir ; renvoi, révocation.                                                             |
-| `/projects`, `/projects/:id` | Espaces (projets, programmes, politiques) : création, phase, années, membres et rôles, suppression.                                     |
-| `/billing`                   | Revenu annuel récurrent, encours, abonnements (consommation d'évaluations, coût IA), factures.                                          |
+| Route                        | Contenu                                                                                                                                           |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/organizations`             | Liste, création. Comptes, espaces, invitations en attente, offre.                                                                                 |
+| `/organizations/:id`         | Fiche : comptes, invitations, espaces, abonnement, factures, coordonnées de facturation. Suppression refusée dès qu'une facture existe.           |
+| `/profiles`                  | Tous les comptes : création manuelle, archivage, rôle, organisation (en changer retire le compte des espaces de l'ancienne), accès au backoffice. |
+| `/invitations`               | Invitations par e-mail, avec rôle et espaces à ouvrir ; renvoi, révocation.                                                                       |
+| `/projects`, `/projects/:id` | Espaces (projets, programmes, politiques) : création, phase, années, membres et rôles, suppression.                                               |
+| `/billing`                   | Revenu annuel récurrent, encours, abonnements (consommation d'évaluations, coût IA), factures.                                                    |
 
 ## Invitations
 
@@ -91,6 +92,19 @@ rattachement échoue, le compte est supprimé. L'administrateur transmet
 lui-même l'adresse et le mot de passe ; la personne se connecte au dashboard
 avec.
 
+## Archivage d'un profil
+
+« Supprimer » un profil l'archive : rien n'est effacé (organisation, espaces,
+historique) et il se restaure à l'identique. L'API enregistre l'archivage
+(`backoffice_archive_profile`), puis bannit le compte dans Supabase Auth :
+plus de connexion ni de renouvellement de session. Si le bannissement
+échoue, l'archivage est annulé. Un administrateur ne peut pas archiver son
+propre compte. Les profils archivés sont masqués de la liste par défaut.
+
+Le jeton déjà délivré reste valable jusqu'à son expiration (une heure par
+défaut). Côté dashboard, un compte archivé apparaît encore dans les membres
+de ses espaces.
+
 ## Facturation
 
 Les offres reprennent la page Tarifs de la landing (`billing_plans`) :
@@ -114,6 +128,6 @@ facture à ce stade.
 
 ```bash
 npm run typecheck && npm run check && npm run build
-# Base : dashboard-themiros/supabase/tests/database/backoffice.test.sql
-# API  : api-themiros/tests/test_admin_invitations.py
+# Base : dashboard-themiros/supabase/tests/database/backoffice*.test.sql
+# API  : api-themiros/tests/test_admin_*.py
 ```

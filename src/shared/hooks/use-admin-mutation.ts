@@ -6,7 +6,7 @@ import { errorMessage } from "@/shared/lib/errors"
 type AdminMutationOptions<TVariables, TResult> = {
   mutationFn: (variables: TVariables) => Promise<TResult>
   /** Message de succes ; une fonction pour le composer avec le resultat. */
-  success?: string | ((result: TResult) => string)
+  success?: string | ((result: TResult, variables: TVariables) => string)
   onSuccess?: (result: TResult) => void
 }
 
@@ -25,10 +25,12 @@ export function useAdminMutation<TVariables = void, TResult = unknown>({
 
   return useMutation({
     mutationFn,
-    onSuccess: async (result) => {
+    onSuccess: async (result, variables) => {
       await queryClient.invalidateQueries()
       if (success) {
-        toast.success(typeof success === "function" ? success(result) : success)
+        toast.success(
+          typeof success === "function" ? success(result, variables) : success
+        )
       }
       onSuccess?.(result)
     },

@@ -12,6 +12,9 @@ export type Profile = {
   workspaceCount: number
   emailConfirmedAt: string | null
   lastSignInAt: string | null
+  /** Archive : le compte ne peut plus se connecter, rien n'est efface. */
+  archivedAt: string | null
+  archivedByName: string | null
   createdAt: string
 }
 

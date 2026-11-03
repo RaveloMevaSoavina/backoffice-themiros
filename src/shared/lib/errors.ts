@@ -13,6 +13,11 @@ const messages: Record<string, string> = {
   ORGANIZATION_HAS_INVOICES:
     "Cette organisation a été facturée : elle ne peut plus être supprimée.",
   PROFILE_NOT_FOUND: "Profil introuvable.",
+  CANNOT_ARCHIVE_SELF: "Vous ne pouvez pas archiver votre propre compte.",
+  USER_BAN_FAILED:
+    "Supabase n'a pas pu bloquer ou débloquer le compte : rien n'a changé.",
+  EMAIL_ALREADY_REGISTERED: "Un compte existe déjà avec cette adresse.",
+  WEAK_PASSWORD: "Mot de passe jugé trop faible par Supabase.",
   WORKSPACE_NOT_FOUND: "Espace introuvable.",
   WORKSPACE_NAME_REQUIRED: "Le nom de l'espace est obligatoire.",
   OWNER_NOT_IN_ORGANIZATION:
