@@ -1,6 +1,5 @@
 import { useState } from "react"
 
-import { OrganizationSelect } from "@/features/organizations/components/organization-select"
 import type { Profile, ProfileInput } from "@/features/profiles/model/types"
 import { updateProfile } from "@/features/profiles/services/profile-service"
 import { useAdminMutation } from "@/shared/hooks/use-admin-mutation"
@@ -66,9 +65,6 @@ function ProfileForm({
     success: "Profil mis à jour",
     onSuccess: onDone,
   })
-  const movesOut =
-    profile.organizationId !== null &&
-    input.organizationId !== profile.organizationId
 
   return (
     <form
@@ -114,24 +110,6 @@ function ProfileForm({
               </option>
             ))}
           </NativeSelect>
-        </Field>
-        <Field
-          htmlFor="profile-organization"
-          hint={
-            movesOut
-              ? "Le compte sera retiré de tous les espaces de son organisation actuelle."
-              : undefined
-          }
-          label="Organisation"
-        >
-          <OrganizationSelect
-            allowNone
-            id="profile-organization"
-            onChange={(organizationId) => {
-              setInput({ ...input, organizationId: organizationId || null })
-            }}
-            value={input.organizationId ?? ""}
-          />
         </Field>
       </DialogBody>
       <DialogFooter>

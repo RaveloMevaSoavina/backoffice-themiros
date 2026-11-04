@@ -5,6 +5,7 @@ import { Link } from "react-router-dom"
 
 import { useAuth } from "@/features/auth/model/auth-provider"
 import { ProfileEditDialog } from "@/features/profiles/components/profile-edit-dialog"
+import { ProfileOrganizationDialog } from "@/features/profiles/components/profile-organization-dialog"
 import {
   type Profile,
   profileDisplayName,
@@ -52,6 +53,7 @@ export function ProfilesTable({ organizationId }: ProfilesTableProps) {
   })
   const [search, setSearch] = useState("")
   const [editing, setEditing] = useState<Profile | null>(null)
+  const [moving, setMoving] = useState<Profile | null>(null)
   const [adminChange, setAdminChange] = useState<Profile | null>(null)
   const [archiveChange, setArchiveChange] = useState<Profile | null>(null)
   const [deleting, setDeleting] = useState<Profile | null>(null)
@@ -217,6 +219,13 @@ export function ProfilesTable({ organizationId }: ProfilesTableProps) {
                           Modifier le profil
                         </DropdownMenuItem>
                         <DropdownMenuItem
+                          onSelect={() => {
+                            setMoving(profile)
+                          }}
+                        >
+                          Changer d'organisation
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
                           disabled={
                             profile.isPlatformAdmin &&
                             profile.id === session?.user.id
@@ -267,6 +276,13 @@ export function ProfilesTable({ organizationId }: ProfilesTableProps) {
           if (!open) setEditing(null)
         }}
         profile={editing}
+      />
+
+      <ProfileOrganizationDialog
+        onOpenChange={(open) => {
+          if (!open) setMoving(null)
+        }}
+        profile={moving}
       />
 
       <ConfirmDialog
