@@ -21,8 +21,9 @@ Avant la première ouverture :
 
 1. Appliquer la migration
    `dashboard-themiros/supabase/migrations/20261103000001_backoffice.sql`
-   `20261103000002_backoffice_archive_profiles.sql` et
-   `20261103000003_backoffice_delete_profiles.sql` (la chaîne de
+   `20261103000002_backoffice_archive_profiles.sql`,
+   `20261103000003_backoffice_delete_profiles.sql` et
+   `20261104000001_backoffice_demo_requests.sql` (la chaîne de
    migrations reste dans le dashboard : c'est la même base).
 2. Nommer le premier administrateur, dans le SQL editor :
 
@@ -66,6 +67,7 @@ Avant la première ouverture :
 | `/invitations`               | Invitations par e-mail, avec rôle et espaces à ouvrir ; renvoi, révocation.                                                                                    |
 | `/projects`, `/projects/:id` | Espaces (projets, programmes, politiques) : création, phase, années, membres et rôles, suppression.                                                            |
 | `/billing`                   | Revenu annuel récurrent, encours, abonnements (consommation d'évaluations, coût IA), factures.                                                                 |
+| `/demo-requests`             | Demandes de démonstration de la landing page : statut de suivi, notes internes, réponse par e-mail, suppression (spam, RGPD). Signale celles non notifiées.   |
 
 ## Invitations
 

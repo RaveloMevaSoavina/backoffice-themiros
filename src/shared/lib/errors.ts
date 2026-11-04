@@ -51,6 +51,8 @@ const messages: Record<string, string> = {
   INVOICE_DUE_BEFORE_ISSUE: "L'échéance précède la date d'émission.",
   INVOICE_STATUS_TRANSITION_INVALID:
     "Ce changement de statut n'est pas possible pour cette facture.",
+  DEMO_REQUEST_NOT_FOUND: "Demande de démonstration introuvable.",
+  DEMO_REQUEST_STATUS_INVALID: "Statut de demande inconnu.",
 }
 
 /* Raison donnee par Supabase quand l'API n'a pas pu faire l'operation

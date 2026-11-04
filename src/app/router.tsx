@@ -5,6 +5,7 @@ import { AuthGuard } from "@/features/auth/screens/auth-guard"
 import { LoginScreen } from "@/features/auth/screens/login-screen"
 import { PublicOnlyRoute } from "@/features/auth/screens/public-only-route"
 import { BillingScreen } from "@/features/billing/screens/billing-screen"
+import { DemoRequestsScreen } from "@/features/demo-requests/screens/demo-requests-screen"
 import { InvitationsScreen } from "@/features/invitations/screens/invitations-screen"
 import { BackofficeLayout } from "@/features/layout/screens/backoffice-layout"
 import { OrganizationDetailScreen } from "@/features/organizations/screens/organization-detail-screen"
@@ -41,6 +42,7 @@ export const appRouter = createBrowserRouter([
                 element: <ProjectDetailScreen />,
               },
               { path: "/billing", element: <BillingScreen /> },
+              { path: "/demo-requests", element: <DemoRequestsScreen /> },
             ],
           },
         ],
