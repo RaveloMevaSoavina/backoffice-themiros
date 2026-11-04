@@ -53,6 +53,16 @@ const messages: Record<string, string> = {
     "Ce changement de statut n'est pas possible pour cette facture.",
 }
 
+/* Raison donnee par Supabase quand l'API n'a pas pu faire l'operation
+   (SMTP, quota d'e-mails...) : sans elle, impossible de savoir quoi corriger. */
+function withUpstreamReason(message: string, error: unknown) {
+  const reason =
+    error instanceof ApiError ? error.context.upstream_message : undefined
+  return typeof reason === "string" && reason
+    ? `${message} Supabase : « ${reason} ».`
+    : message
+}
+
 export function errorMessage(error: unknown) {
   const code =
     error instanceof ApiError
@@ -60,7 +70,7 @@ export function errorMessage(error: unknown) {
       : (error as { message?: unknown } | null)?.message
 
   if (typeof code === "string" && code in messages) {
-    return messages[code]
+    return withUpstreamReason(messages[code], error)
   }
   if (error instanceof ApiError) {
     return error.message
