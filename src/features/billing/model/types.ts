@@ -43,7 +43,14 @@ export type Subscription = {
   endsOn: string
   autoRenew: boolean
   notes: string | null
+  /** `stripe` : souscrit en ligne, tenu à jour par les webhooks (lecture
+      seule ici). */
+  source: BillingSource
+  stripeSubscriptionId: string | null
+  cancelAtPeriodEnd: boolean
 }
+
+export type BillingSource = "manual" | "stripe"
 
 export type SubscriptionInput = {
   id: string | null
@@ -83,6 +90,9 @@ export type Invoice = {
   dueOn: string | null
   paidOn: string | null
   notes: string | null
+  /** `stripe` : facture Stripe (numéro THS-…), lecture seule ici. */
+  source: BillingSource
+  stripeInvoiceId: string | null
 }
 
 export type InvoiceInput = {

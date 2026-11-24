@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query"
-import { MoreHorizontal } from "lucide-react"
+import { ExternalLink, MoreHorizontal } from "lucide-react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 
 import { InvoiceDialog } from "@/features/billing/components/invoice-dialog"
 import { SubscriptionDialog } from "@/features/billing/components/subscription-dialog"
+import { stripeDashboardLink } from "@/features/billing/model/stripe"
 import {
   type Subscription,
   subscriptionStatusLabels,
@@ -117,7 +118,14 @@ export function SubscriptionsTable({
                       </Link>
                     </TableCell>
                   )}
-                  <TableCell>{subscription.planName}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1.5">
+                      {subscription.planName}
+                      {subscription.source === "stripe" ? (
+                        <Badge variant="outline">Stripe</Badge>
+                      ) : null}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <Badge variant={statusVariant[subscription.status]}>
                       {subscriptionStatusLabels[subscription.status]}
@@ -135,7 +143,9 @@ export function SubscriptionsTable({
                   <TableCell className="text-muted-foreground">
                     {formatDate(subscription.startsOn)} →{" "}
                     {formatDate(subscription.endsOn)}
-                    {subscription.autoRenew ? (
+                    {subscription.cancelAtPeriodEnd ? (
+                      <div className="text-xs">Résilié en fin de période</div>
+                    ) : subscription.autoRenew ? (
                       <div className="text-xs">Reconduction tacite</div>
                     ) : null}
                   </TableCell>
@@ -151,20 +161,41 @@ export function SubscriptionsTable({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onSelect={() => {
-                            setEditing(subscription)
-                          }}
-                        >
-                          Modifier
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={() => {
-                            setInvoicing(subscription)
-                          }}
-                        >
-                          Préparer la facture
-                        </DropdownMenuItem>
+                        {/* Souscrit en ligne : Stripe facture et tient
+                            l'abonnement à jour, on ne fait que le consulter. */}
+                        {subscription.source === "stripe" &&
+                        subscription.stripeSubscriptionId ? (
+                          <DropdownMenuItem asChild>
+                            <a
+                              href={stripeDashboardLink(
+                                "subscriptions",
+                                subscription.stripeSubscriptionId
+                              )}
+                              rel="noreferrer"
+                              target="_blank"
+                            >
+                              <ExternalLink />
+                              Ouvrir dans Stripe
+                            </a>
+                          </DropdownMenuItem>
+                        ) : (
+                          <>
+                            <DropdownMenuItem
+                              onSelect={() => {
+                                setEditing(subscription)
+                              }}
+                            >
+                              Modifier
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onSelect={() => {
+                                setInvoicing(subscription)
+                              }}
+                            >
+                              Préparer la facture
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

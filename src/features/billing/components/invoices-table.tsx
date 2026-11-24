@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query"
-import { MoreHorizontal } from "lucide-react"
+import { ExternalLink, MoreHorizontal } from "lucide-react"
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import {
@@ -7,6 +7,7 @@ import {
   InvoiceDateDialog,
 } from "@/features/billing/components/invoice-date-dialog"
 import { InvoiceDialog } from "@/features/billing/components/invoice-dialog"
+import { stripeDashboardLink } from "@/features/billing/model/stripe"
 import {
   type Invoice,
   invoiceStatusLabels,
@@ -132,6 +133,11 @@ export function InvoicesTable({ organizationId }: InvoicesTableProps) {
                 >
                   <TableCell className="font-mono text-xs">
                     {invoice.number ?? "—"}
+                    {invoice.source === "stripe" ? (
+                      <Badge className="ml-1.5 font-sans" variant="outline">
+                        Stripe
+                      </Badge>
+                    ) : null}
                   </TableCell>
                   {organizationId ? null : (
                     <TableCell>
@@ -175,7 +181,26 @@ export function InvoicesTable({ organizationId }: InvoicesTableProps) {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {invoice.status === "draft" ? (
+                          {/* Facture Stripe : encaissement et annulation se
+                              font chez Stripe, le webhook les recopie. */}
+                          {invoice.source === "stripe" &&
+                          invoice.stripeInvoiceId ? (
+                            <DropdownMenuItem asChild>
+                              <a
+                                href={stripeDashboardLink(
+                                  "invoices",
+                                  invoice.stripeInvoiceId
+                                )}
+                                rel="noreferrer"
+                                target="_blank"
+                              >
+                                <ExternalLink />
+                                Ouvrir dans Stripe
+                              </a>
+                            </DropdownMenuItem>
+                          ) : null}
+                          {invoice.source ===
+                          "stripe" ? null : invoice.status === "draft" ? (
                             <>
                               <DropdownMenuItem
                                 onSelect={() => {
@@ -201,7 +226,8 @@ export function InvoicesTable({ organizationId }: InvoicesTableProps) {
                               </DropdownMenuItem>
                             </>
                           ) : null}
-                          {invoice.status === "issued" ? (
+                          {invoice.source === "manual" &&
+                          invoice.status === "issued" ? (
                             <>
                               <DropdownMenuItem
                                 onSelect={() => {
@@ -220,7 +246,8 @@ export function InvoicesTable({ organizationId }: InvoicesTableProps) {
                               </DropdownMenuItem>
                             </>
                           ) : null}
-                          {invoice.status === "paid" ? (
+                          {invoice.source === "manual" &&
+                          invoice.status === "paid" ? (
                             <DropdownMenuItem
                               onSelect={() => {
                                 setConfirm({ kind: "unpay", invoice })

@@ -25,6 +25,9 @@ export type SubscriptionRow = {
   ends_on: string
   auto_renew: boolean
   notes: string | null
+  source?: Subscription["source"]
+  stripe_subscription_id?: string | null
+  cancel_at_period_end?: boolean
 }
 
 type InvoiceRow = {
@@ -43,6 +46,8 @@ type InvoiceRow = {
   due_on: string | null
   paid_on: string | null
   notes: string | null
+  source?: Invoice["source"]
+  stripe_invoice_id?: string | null
 }
 
 type PlanRow = {
@@ -72,6 +77,9 @@ export function toSubscription(row: SubscriptionRow): Subscription {
     endsOn: row.ends_on,
     autoRenew: row.auto_renew,
     notes: row.notes,
+    source: row.source ?? "manual",
+    stripeSubscriptionId: row.stripe_subscription_id ?? null,
+    cancelAtPeriodEnd: row.cancel_at_period_end ?? false,
   }
 }
 
@@ -92,6 +100,8 @@ function toInvoice(row: InvoiceRow): Invoice {
     dueOn: row.due_on,
     paidOn: row.paid_on,
     notes: row.notes,
+    source: row.source ?? "manual",
+    stripeInvoiceId: row.stripe_invoice_id ?? null,
   }
 }
 
